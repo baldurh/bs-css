@@ -3479,6 +3479,7 @@ exports.option_get_unwrap = option_get_unwrap;
 
 
 var List = __webpack_require__(13);
+var Curry = __webpack_require__(2);
 var $$String = __webpack_require__(42);
 var Glamor = __webpack_require__(19);
 var Js_dict = __webpack_require__(70);
@@ -3486,14 +3487,14 @@ var Js_option = __webpack_require__(71);
 var Css_Colors = __webpack_require__(72);
 var Js_primitive = __webpack_require__(14);
 
-((
+var merge = (
       function (styles) {
           const glamor = __webpack_require__(19);
           return glamor.css.apply(glamor, styles)
       }
-  ));
+  );
 
-function makeDict(ruleset) {
+function rulesetToDict(ruleset) {
   var toJs = function (rule) {
     var variant = rule[0];
     if (variant !== -659583595) {
@@ -3502,7 +3503,7 @@ function makeDict(ruleset) {
           var match = rule[1];
           return /* tuple */[
                   match[0],
-                  makeDict(match[1])
+                  rulesetToDict(match[1])
                 ];
         } else {
           return /* tuple */[
@@ -3540,6 +3541,42 @@ function makeDict(ruleset) {
     }
   };
   return Js_dict.fromList(List.map(toJs, ruleset));
+}
+
+function GlamorBackend_000(prim, prim$1, prim$2, prim$3) {
+  var tmp = {
+    fontFamily: prim,
+    src: prim$1
+  };
+  if (prim$2 !== undefined) {
+    tmp.fontStyle = Js_primitive.valFromOption(prim$2);
+  }
+  if (prim$3 !== undefined) {
+    tmp.fontWeight = Js_primitive.valFromOption(prim$3);
+  }
+  return tmp;
+}
+
+function GlamorBackend_001(prim) {
+  return Glamor.css.fontFace(prim);
+}
+
+function GlamorBackend_003(prim) {
+  return prim.toString();
+}
+
+function GlamorBackend_004(prim) {
+  return Glamor.css.keyframes(prim);
+}
+
+function GlamorBackend_005(prim) {
+  Glamor.css.insert(prim);
+  return /* () */0;
+}
+
+function GlamorBackend_006(prim, prim$1) {
+  Glamor.css.global(prim, prim$1);
+  return /* () */0;
 }
 
 function join(separator, strings) {
@@ -3937,26 +3974,47 @@ function string_of_cursor(x) {
   }
 }
 
-function $$global(selector, rules) {
-  Glamor.css.global(selector, makeDict(rules));
-  return /* () */0;
+function string_of_gridDirection(param) {
+  if (param >= -227605271) {
+    if (param >= 5693978) {
+      if (param >= 653193961) {
+        return "unset";
+      } else {
+        return "row";
+      }
+    } else if (param >= -15525083) {
+      return "row dense";
+    } else {
+      return "column dense";
+    }
+  } else if (param !== -878767996) {
+    if (param >= -601204732) {
+      return "inherit";
+    } else {
+      return "column";
+    }
+  } else {
+    return "initial";
+  }
 }
 
-function insertRule(css) {
-  Glamor.css.insert(css);
-  return /* () */0;
+function $$global(selector, rules) {
+  return Curry._2(GlamorBackend_006, selector, rulesetToDict(rules));
+}
+
+var insertRule = Curry.__1(GlamorBackend_005);
+
+function addStop(dict, param) {
+  dict[String(param[0]) + "%"] = rulesetToDict(param[1]);
+  return dict;
 }
 
 function keyframes(frames) {
-  var addStop = function (dict, param) {
-    dict[String(param[0]) + "%"] = makeDict(param[1]);
-    return dict;
-  };
-  return Glamor.css.keyframes(List.fold_left(addStop, { }, frames));
+  return Curry._1(GlamorBackend_004, List.fold_left(addStop, { }, frames));
 }
 
 function style(rules) {
-  return Glamor.css(makeDict(List.rev(rules))).toString();
+  return Curry._1(GlamorBackend_003, Glamor.css(rulesetToDict(List.rev(rules))));
 }
 
 function d(property, value) {
@@ -4111,14 +4169,16 @@ function repeatingRadialGradient(stops) {
 
 function string_of_length_cascading(param) {
   if (typeof param === "number") {
-    if (param !== -601204732) {
+    if (param >= -601204732) {
       if (param >= 653193961) {
         return "unset";
       } else {
-        return "0";
+        return "inherit";
       }
+    } else if (param >= -789508312) {
+      return "0";
     } else {
-      return "inherit";
+      return "initial";
     }
   } else {
     var variant = param[0];
@@ -4509,18 +4569,20 @@ function url(x) {
 }
 
 function display(x) {
-  return d("display", x >= 53323314 ? (
-                x !== 64712127 ? (
+  return d("display", x >= -147785676 ? (
+                x >= 64712127 ? (
                     x >= 653193961 ? (
                         x >= 888960333 ? "block" : "unset"
                       ) : (
-                        x >= 423610969 ? "inline" : "inline-flex"
+                        x >= 423610969 ? "inline" : "inline-grid"
                       )
-                  ) : "inline-grid"
+                  ) : (
+                    x >= 53323314 ? "inline-flex" : "inline-block"
+                  )
               ) : (
                 x !== -999565626 ? (
-                    x >= -601204732 ? (
-                        x >= -147785676 ? "inline-block" : "inherit"
+                    x >= -878767996 ? (
+                        x >= -601204732 ? "inherit" : "initial"
                       ) : (
                         x >= -922086728 ? "none" : "flex"
                       )
@@ -4536,9 +4598,11 @@ function position(x) {
                     x >= 188263721 ? "sticky" : "static"
                   )
               ) : (
-                x !== -601204732 ? (
-                    x >= 10615156 ? "fixed" : "absolute"
-                  ) : "inherit"
+                x >= -601204732 ? (
+                    x >= 10615156 ? "fixed" : "inherit"
+                  ) : (
+                    x >= -878767996 ? "initial" : "absolute"
+                  )
               ));
 }
 
@@ -4858,32 +4922,8 @@ function maxHeight(x) {
   return d("maxHeight", string_of_dimension(x));
 }
 
-function gridAutoDirectionToJs(param) {
-  if (param >= -227605271) {
-    if (param >= 5693978) {
-      if (param >= 653193961) {
-        return "unset";
-      } else {
-        return "row";
-      }
-    } else if (param >= -15525083) {
-      return "row dense";
-    } else {
-      return "column dense";
-    }
-  } else if (param !== -878767996) {
-    if (param >= -601204732) {
-      return "inherit";
-    } else {
-      return "column";
-    }
-  } else {
-    return "initial";
-  }
-}
-
 function gridAutoFlow(direction) {
-  return d("gridAutoFlow", gridAutoDirectionToJs(direction));
+  return d("gridAutoFlow", string_of_gridDirection(direction));
 }
 
 function string_of_dimensions(dimensions) {
@@ -4999,11 +5039,13 @@ function alignContent(x) {
 }
 
 function boxSizing(x) {
-  return d("boxSizing", x >= 9307263 ? (
-                x >= 653193961 ? "unset" : "border-box"
-              ) : (
-                x >= -601204732 ? "inherit" : "content-box"
-              ));
+  return d("boxSizing", x !== -878767996 ? (
+                x >= 9307263 ? (
+                    x >= 653193961 ? "unset" : "border-box"
+                  ) : (
+                    x >= -601204732 ? "inherit" : "content-box"
+                  )
+              ) : "initial");
 }
 
 function $$float(x) {
@@ -5040,9 +5082,11 @@ function contentRule(x) {
 
 function columnCount(x) {
   return d("columnCount", typeof x === "number" ? (
-                x !== -601204732 ? (
-                    x >= 653193961 ? "unset" : "auto"
-                  ) : "inherit"
+                x >= -601204732 ? (
+                    x >= 653193961 ? "unset" : "inherit"
+                  ) : (
+                    x >= -878767996 ? "initial" : "auto"
+                  )
               ) : String(x[1]));
 }
 
@@ -5419,7 +5463,7 @@ function outlineOffset(x) {
 }
 
 function fontStyleToJs(param) {
-  if (param !== 107228912) {
+  if (param >= 107228912) {
     if (param >= 734792881) {
       if (param >= 812216871) {
         return "normal";
@@ -5429,10 +5473,12 @@ function fontStyleToJs(param) {
     } else if (param >= 653193961) {
       return "unset";
     } else {
-      return "inherit";
+      return "italic";
     }
+  } else if (param >= -601204732) {
+    return "inherit";
   } else {
-    return "italic";
+    return "initial";
   }
 }
 
@@ -5465,17 +5511,7 @@ function fontFace(fontFamily, src, fontStyle, fontWeight, _) {
                 return "local(\"" + (String(param[1]) + "\")");
               }
             }), src));
-  var tmp = {
-    fontFamily: fontFamily,
-    src: src$1
-  };
-  if (fontStyle$1 !== undefined) {
-    tmp.fontStyle = Js_primitive.valFromOption(fontStyle$1);
-  }
-  if (fontWeight !== undefined) {
-    tmp.fontWeight = Js_primitive.valFromOption(fontWeight);
-  }
-  return Glamor.css.fontFace(tmp);
+  return Curry._1(GlamorBackend_001, Curry._4(GlamorBackend_000, fontFamily, src$1, fontStyle$1, fontWeight));
 }
 
 function fontWeight(x) {
@@ -5485,13 +5521,15 @@ function fontWeight(x) {
 function lineHeight(x) {
   var tmp;
   if (typeof x === "number") {
-    tmp = x !== -789508312 ? (
+    tmp = x >= -789508312 ? (
         x >= 653193961 ? (
             x >= 812216871 ? "normal" : "unset"
           ) : (
-            x >= -601204732 ? "inherit" : "auto"
+            x >= -601204732 ? "inherit" : "0"
           )
-      ) : "0";
+      ) : (
+        x >= -878767996 ? "initial" : "auto"
+      );
   } else {
     var variant = x[0];
     if (variant >= 22643) {
@@ -6265,11 +6303,27 @@ function stopOpacity(o) {
   return d("stopOpacity", string_of_float(o));
 }
 
+var Glamor_508 = /* SVG */[
+  fill,
+  fillRule,
+  fillOpacity,
+  stroke,
+  strokeLinecap,
+  strokeLinejoin,
+  strokeMiterlimit,
+  strokeWidth,
+  strokeOpacity,
+  stopColor,
+  stopOpacity
+];
+
 var empty = /* [] */0;
 
-var merge = List.concat;
+var merge$1 = List.concat;
 
 var inherit_ = /* inherit_ */-601204732;
+
+var initial = /* initial */-878767996;
 
 var unset = /* unset */653193961;
 
@@ -6767,28 +6821,17 @@ var square = /* square */-655228771;
 
 var unsafe = d;
 
-var SVG = [
-  fill,
-  fillRule,
-  fillOpacity,
-  stroke,
-  strokeLinecap,
-  strokeLinejoin,
-  strokeMiterlimit,
-  strokeWidth,
-  strokeOpacity,
-  stopColor,
-  stopOpacity
-];
+var SVG = Glamor_508;
 
 exports.empty = empty;
-exports.merge = merge;
+exports.merge = merge$1;
 exports.style = style;
 exports.$$global = $$global;
 exports.insertRule = insertRule;
 exports.important = important;
 exports.label = label;
 exports.inherit_ = inherit_;
+exports.initial = initial;
 exports.unset = unset;
 exports.deg = deg;
 exports.rad = rad;
@@ -7291,7 +7334,7 @@ exports.selection = selection;
 exports.placeholder = placeholder;
 exports.media = media;
 exports.SVG = SVG;
-/*  Not a pure module */
+/* merge Not a pure module */
 
 
 /***/ }),
